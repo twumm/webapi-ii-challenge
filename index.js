@@ -7,7 +7,19 @@ const port = 5000
 server.use(express.json());
 
 server.post('/api/posts', async (req, res) => {
-  res.send('add blog post').end();
+  const blogPost = { title, contents } = req.body;
+  try {
+    if (!blogPost.title || !blogPost.contents) {
+      res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
+    } else {
+      const newPostId = await blogDB.insert(blogPost);
+      const newPost = await blogDB.findById(newPostId.id);
+      res.status(200).json(newPost);
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: "There was an error while saving the post to the database" });
+  }
 })
 
 server.post('/api/posts/:id/comments', async (req, res) => {
