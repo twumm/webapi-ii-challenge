@@ -68,7 +68,20 @@ server.get('/api/posts/:id', async (req, res) => {
 })
 
 server.get('/api/posts/:id/comments', async (req, res) => {
-  res.send('returns an array of comment objects with the post with the specified id').end();
+  // res.send('returns an array of comment objects with the post with the specified id').end();
+  const { id } = req.params;
+  try {
+    const post = await blogDB.findById(id);
+    const comments = await blogDB.findPostComments(id);
+    if (!post.length) {
+      res.status(404).json({ message: "The post with the specified ID does not exist." });
+    } else {
+      res.status(200).json(comments);
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: "The comments information could not be retrieved." });
+  }
 })
 
 server.delete('/api/posts/:id', async (req, res) => {
