@@ -102,7 +102,24 @@ server.delete('/api/posts/:id', async (req, res) => {
 })
 
 server.put('/api/posts/:id', async (req, res) => {
-  res.send('updates post with specified id');
+  // res.send('updates post with specified id');
+  const { id } = req.params;
+  const blogPost = { title, contents } = req.body;
+  try {
+    const post = await blogDB.findById(id);
+    if (!post.length) {
+      res.status(404).json({ message: "The post with the specified ID does not exist." });
+    } else if (!blogPost.title || !blogPost.contents) {
+      res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
+    } else {
+      const updated = await blogDB.update(id, blogPost);
+      const updatedPost = await blogDB.findById(id);
+      res.status(200).json(updatedPost);
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: "The post information could not be modified." });
+  }
 })
 
 server.listen(port, () => {
