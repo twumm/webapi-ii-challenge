@@ -43,7 +43,13 @@ server.post('/api/posts/:id/comments', async (req, res) => {
 })
 
 server.get('/api/posts', async (req, res) => {
-  res.send('get all posts').end();
+  try {
+    const blogs = await blogDB.find();
+    res.status(200).json(blogs);
+  }
+  catch (error) {
+    res.status(500).json({ error: "The posts information could not be retrieved." });
+  }
 })
 
 server.get('/api/posts/:id', async (req, res) => {
