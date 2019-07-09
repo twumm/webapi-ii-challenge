@@ -85,7 +85,20 @@ server.get('/api/posts/:id/comments', async (req, res) => {
 })
 
 server.delete('/api/posts/:id', async (req, res) => {
-  res.send('removes the post with the specified id and returns the deleted post object').end()
+  // res.send('removes the post with the specified id and returns the deleted post object').end()
+  const { id } = req.params;
+  try {
+    const deletedPost = await blogDB.findById(id);
+    const deleted = await blogDB.remove(id);
+    if (!deletedPost || !deleted) {
+      res.status(404).json({ error: "The post with the specified ID does not exist." })
+    } else {
+      res.status(200).json({ count: deleted, deletedPost })
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: "The post could not be removed" });
+  }
 })
 
 server.put('/api/posts/:id', async (req, res) => {
