@@ -23,7 +23,23 @@ server.post('/api/posts', async (req, res) => {
 })
 
 server.post('/api/posts/:id/comments', async (req, res) => {
-  res.send('add comments to post').end();
+  const { text } = req.body;
+  const { id } = req.params;
+  const comment = { text, post_id: Number(id) };
+  try {
+    if (!comment.post_id) {
+      res.status(404).json({ message: "The post with the specified ID does not exist." })
+    } else if (!comment.text) {
+      res.status(404).json({ errorMessage: "Please provide text for the comment." })
+    } else {
+      const newCommentId = await blogDB.insertComment(comment);
+      const newComment = await blogDB.findCommentById(newCommentId.id);
+      res.status(201).json(newComment);
+    }
+  }
+  catch (error) {
+    res.status(500).json({ error: "There was an error while saving the comment to the database" });
+  }
 })
 
 server.get('/api/posts', async (req, res) => {
